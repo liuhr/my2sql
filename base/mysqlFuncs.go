@@ -75,16 +75,9 @@ type table struct {
 
 func GetMysqlUrl(cfg *ConfCmd) string {
 	var urlStr string
-	if cfg.Socket == "" {
-		urlStr = fmt.Sprintf(
+	urlStr = fmt.Sprintf(
 			"%s:%s@tcp(%s:%d)/?autocommit=true&charset=utf8mb4,utf8,latin1&loc=Local&parseTime=true",
 			cfg.User, cfg.Passwd, cfg.Host, cfg.Port)
-
-	} else {
-		urlStr = fmt.Sprintf(
-			"%s:%s@unix(%s)/?autocommit=true&charset=utf8mb4,utf8,latin1&loc=Local&parseTime=true",
-			cfg.User, cfg.Passwd, cfg.Socket)
-	}
 	return urlStr
 
 }
@@ -112,15 +105,6 @@ func CreateMysqlCon(mysqlUrl string) (*sql.DB, error) {
 }
 
 func (this *TablesColumnsInfo) GetTbDefFromDb(cfg *ConfCmd, dbname string, tbname string) {
-	if (cfg.Socket == "") && (cfg.Host == "" || cfg.Port == 0) {
-		log.Fatalf("must specify mysql addr and login user/password to get table definition")
-	} else if cfg.User == "" || cfg.Passwd == "" {
-		log.Fatalf("must specify mysql addr and login user/password to get table definition")
-	}
-	this.GetColumnFromDb(cfg, dbname, tbname)
-}
-
-func (this *TablesColumnsInfo) GetColumnFromDb(cfg *ConfCmd, dbname string, tbname string) {
 	//get table columns from DB
 	var err error
 	if cfg.FromDB == nil {

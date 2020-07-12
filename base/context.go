@@ -12,7 +12,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"strings"
 	"time"
 )
 
@@ -79,15 +78,14 @@ type ConfCmd struct {
 	Port     uint
 	User     string
 	Passwd   string
-	Socket   string
 	ServerId uint
 
 	Databases    []string
 	Tables       []string
-	DatabaseRegs []*regexp.Regexp
-	ifHasDbReg   bool
-	TableRegs    []*regexp.Regexp
-	ifHasTbReg   bool
+	//DatabaseRegs []*regexp.Regexp
+	//ifHasDbReg   bool
+	//TableRegs    []*regexp.Regexp
+	//ifHasTbReg   bool
 	FilterSql    []string
 	FilterSqlLen int
 
@@ -181,10 +179,9 @@ func (this *ConfCmd) ParseCmdOptions() {
 	flag.StringVar(&this.MysqlType, "mysql-type", "mysql", StrSliceToString(GOptsValidMysqlType, C_joinSepComma, C_validOptMsg)+". server of binlog, mysql or mariadb, default mysql")
 
 	flag.StringVar(&this.Host, "host", "127.0.0.1", "mysql host, default 127.0.0.1 .")
-	flag.UintVar(&this.Port, "port", 3306, "mysql port, default 3306.")
+	flag.UintVar(&this.Port, "port",3306, "mysql port, default 3306.")
 	flag.StringVar(&this.User, "user", "", "mysql user. ")
 	flag.StringVar(&this.Passwd, "password", "", "mysql user password.")
-	flag.StringVar(&this.Socket, "socket", "", "mysql socket file")
 	flag.UintVar(&this.ServerId, "server-id", 1113306, "this program replicates from mysql as slave to read binlogs. Must set this server id unique from other slaves, default 1113306")
 
 	flag.StringVar(&dbs, "databases", "", "only parse these databases, comma seperated, default all.")
@@ -371,12 +368,12 @@ func (this *ConfCmd) CheckCmdOptions() {
 	//check -mysqlType
 	CheckElementOfSliceStr(GOptsValidMysqlType, this.MysqlType, "invalid arg for -mysqlType", true)
 
-	if this.Mode == "repl" {
+	/*if this.Mode == "repl" {
 		//check --user
 		this.CheckRequiredOption(this.User, "-u must be set", true)
 		//check --password
 		this.CheckRequiredOption(this.Passwd, "-p must be set", true)
-	}
+	}*/
 
 	if this.StartFile != "" {
 		this.StartFile = filepath.Base(this.StartFile)
@@ -479,7 +476,7 @@ func (this *ConfCmd) GetDefaultAndRangeValueMsg(opt string) string {
 	)
 }
 
-func (this *ConfCmd) IsTargetTable(db, tb string) bool {
+/*func (this *ConfCmd) IsTargetTable(db, tb string) bool {
 	dbLower := strings.ToLower(db)
 	tbLower := strings.ToLower(tb)
 	if this.ifHasDbReg {
@@ -509,7 +506,7 @@ func (this *ConfCmd) IsTargetTable(db, tb string) bool {
 	}
 	return true
 
-}
+}*/
 
 func (this *ConfCmd) IsTargetDml(dml string) bool {
 	if this.FilterSqlLen < 1 {
