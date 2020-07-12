@@ -560,7 +560,6 @@ func (this *ConfCmd) CreateDB() {
 }
 
 func (this *ConfCmd) PrintUsageMsg() {
-	//hostname, host_ip := GetSystemHomeNameAndAdderss()
 	fmt.Printf("%s\n", C_Version)
 	flag.PrintDefaults()
 }
