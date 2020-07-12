@@ -3,11 +3,9 @@ package base
 import (
 	"sync"
 	"github.com/siddontang/go-mysql/mysql"
-	//"github.com/siddontang/go-log/log"
 	"github.com/siddontang/go-mysql/replication"
 	"my2sql/dsql"
-	//constvar "my2sql/constvar"
-	//"fmt"
+	toolkits "my2sql/toolkits"
 )
 
 type BinEventHandlingIndx struct {
@@ -111,21 +109,21 @@ func (this *MyBinEvent) CheckBinEvent(cfg *ConfCmd, ev *replication.BinlogEvent,
 		wrEvent := ev.Event.(*replication.RowsEvent)
 		db := string(wrEvent.Table.Schema)
 		tb := string(wrEvent.Table.Table)
-		if !cfg.IsTargetTable(db, tb) {
+		/*if !cfg.IsTargetTable(db, tb) {
 			return C_reContinue
+		}*/
+		
+		if len(cfg.Databases) > 0 {
+			if !toolkits.ContainsString(cfg.Databases, db) {
+				return C_reContinue
+			}
 		}
-		/*
-			if len(cfg.Databases) > 0 {
-				if !sliceKits.ContainsString(cfg.Databases, db) {
-					return C_reContinue
-				}
+		if len(cfg.Tables) > 0 {
+			if !toolkits.ContainsString(cfg.Tables, tb) {
+				return C_reContinue
 			}
-			if len(cfg.Tables) > 0 {
-				if !sliceKits.ContainsString(cfg.Tables, tb) {
-					return C_reContinue
-				}
-			}
-		*/
+		}
+	
 		this.BinEvent = wrEvent
 		this.IfRowsEvent = true
 	case replication.QUERY_EVENT:

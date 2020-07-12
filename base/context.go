@@ -82,8 +82,8 @@ type ConfCmd struct {
 	Socket   string
 	ServerId uint
 
-	//Databases    []string
-	//Tables       []string
+	Databases    []string
+	Tables       []string
 	DatabaseRegs []*regexp.Regexp
 	ifHasDbReg   bool
 	TableRegs    []*regexp.Regexp
@@ -108,7 +108,7 @@ type ConfCmd struct {
 	IfSetStartDateTime bool
 	IfSetStopDateTime  bool
 
-	OutputToScreen    bool
+	OutputToScreen bool
 	PrintInterval  int
 	BigTrxRowLimit int
 	LongTrxSeconds int
@@ -161,13 +161,13 @@ type ConfCmd struct {
 
 func (this *ConfCmd) ParseCmdOptions() {
 	var (
-		version   bool
-		dbs       string
-		tbs       string
-		sqlTypes  string
-		startTime string
-		stopTime  string
-		err       error
+		version          bool
+		dbs              string
+		tbs              string
+		sqlTypes         string
+		startTime        string
+		stopTime         string
+		err              error
 		doNotAddPrifixDb bool
 	)
 
@@ -180,15 +180,15 @@ func (this *ConfCmd) ParseCmdOptions() {
 	flag.StringVar(&this.WorkType, "work-type", "2sql", StrSliceToString(GOptsValidWorkType, C_joinSepComma, C_validOptMsg)+". 2sql: convert binlog to sqls, rollback: generate rollback sqls, stats: analyze transactions. default: 2sql")
 	flag.StringVar(&this.MysqlType, "mysql-type", "mysql", StrSliceToString(GOptsValidMysqlType, C_joinSepComma, C_validOptMsg)+". server of binlog, mysql or mariadb, default mysql")
 
-	flag.StringVar(&this.Host, "h", "127.0.0.1", "master host, default 127.0.0.1 .DONOT need to specify when -mode=file")
-	flag.UintVar(&this.Port, "P", 3306, "master port, default 3306. DONOT need to specify when -mode=file")
-	flag.StringVar(&this.User, "u", "", "mysql user. DONOT need to specify when -mode=file")
-	flag.StringVar(&this.Passwd, "p", "", "mysql user password. DONOT need to specify when -mode=file")
-	flag.StringVar(&this.Socket, "S", "", "mysql socket file")
-	flag.UintVar(&this.ServerId, "server-id", 1113306, "works with -mode=repl, this program replicates from master as slave to read binlogs. Must set this server id unique from other slaves, default 1113306")
+	flag.StringVar(&this.Host, "host", "127.0.0.1", "mysql host, default 127.0.0.1 .")
+	flag.UintVar(&this.Port, "port", 3306, "mysql port, default 3306.")
+	flag.StringVar(&this.User, "user", "", "mysql user. ")
+	flag.StringVar(&this.Passwd, "password", "", "mysql user password.")
+	flag.StringVar(&this.Socket, "socket", "", "mysql socket file")
+	flag.UintVar(&this.ServerId, "server-id", 1113306, "this program replicates from mysql as slave to read binlogs. Must set this server id unique from other slaves, default 1113306")
 
-	flag.StringVar(&dbs, "dbs", "", "only parse database which match any of these regular expressions. The regular expression should be in lower case because database name is translated into lower case and then matched against it. \n\tMulti regular expressions is seperated by comma, default parse all databases. Useless when -w=stats")
-	flag.StringVar(&tbs, "tbs", "", "only parse table which match any of these regular expressions.The regular expression should be in lower case because database name is translated into lower case and then matched against it. \n\t Multi regular expressions is seperated by comma, default parse all tables. Useless when -w=stats")
+	flag.StringVar(&dbs, "databases", "", "only parse these databases, comma seperated, default all.")
+	flag.StringVar(&tbs, "tables", "", "only parse these tables, comma seperated, DONOT prefix with schema, default all.")
 	flag.StringVar(&sqlTypes, "sql", "", StrSliceToString(GOptsValidFilterSql, C_joinSepComma, C_validOptMsg)+". only parse these types of sql, comma seperated, valid types are: insert, update, delete; default is all(insert,update,delete)")
 	flag.BoolVar(&this.IgnorePrimaryKeyForInsert, "ignorePrimaryKeyForInsert", false, "for insert statement when -workType=2sql, ignore primary key")
 
@@ -201,8 +201,8 @@ func (this *ConfCmd) ParseCmdOptions() {
 	flag.StringVar(&startTime, "start-datetime", "", "Start reading the binlog at first event having a datetime equal or posterior to the argument, it should be like this: \"2020-01-01 01:00:00\"")
 	flag.StringVar(&stopTime, "stop-datetime", "", "Stop reading the binlog at first event having a datetime equal or posterior to the argument, it should be like this: \"2020-12-30 01:00:00\"")
 
-	flag.BoolVar(&this.OutputToScreen, "outputToScreen", false, "Just output to screen,do not write to file")
-	flag.BoolVar(&this.PrintExtraInfo, "printExtraInfo", false, "Works with -work-type=2sql|rollback. Print database/table/datetime/binlogposition...info on the line before sql, default false")
+	flag.BoolVar(&this.OutputToScreen, "output-toScreen", false, "Just output to screen,do not write to file")
+	flag.BoolVar(&this.PrintExtraInfo, "add-extraInfo", false, "Works with -work-type=2sql|rollback. Print database/table/datetime/binlogposition...info on the line before sql, default false")
 
 	flag.BoolVar(&this.FullColumns, "full-columns", false, "For update sql, include unchanged columns. for update and delete, use all columns to build where condition.\t\ndefault false, this is, use changed columns to build set part, use primary/unique key to build where condition")
 	flag.BoolVar(&doNotAddPrifixDb, "doNotAddPrifixDb", false, "Prefix table name witch database name in sql,ex: insert into db1.tb1 (x1, x1) values (y1, y1). ")
@@ -245,16 +245,16 @@ func (this *ConfCmd) ParseCmdOptions() {
 		this.SqlTblPrefixDb = false
 	}
 
-	/*if dbs != "" {
+	if dbs != "" {
 		this.Databases = CommaSeparatedListToArray(dbs)
 	}
 
 	if tbs != "" {
-		tbArr := CommaSeparatedListToArray(tbs)
+		this.Tables = CommaSeparatedListToArray(tbs)
+		
+	}
 
-		this.Tables
-	}*/
-
+	/*
 	this.ifHasDbReg = false
 	if dbs != "" {
 		dbArr := CommaSeparatedListToArray(dbs)
@@ -283,7 +283,7 @@ func (this *ConfCmd) ParseCmdOptions() {
 		if len(this.TableRegs) > 0 {
 			this.ifHasTbReg = true
 		}
-	}
+	} */
 
 	if sqlTypes != "" {
 		this.FilterSql = CommaSeparatedListToArray(sqlTypes)
