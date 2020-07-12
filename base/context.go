@@ -418,14 +418,6 @@ func (this *ConfCmd) CheckCmdOptions() {
 		this.CheckValueInRange("Threads", int(this.Threads), "value of -t out of range", true)
 	}
 
-	// check --to-last-log
-	/*if this.ToLastLog {
-		if this.Mode != "repl" || this.WorkType != "stats" {
-			log.Fatalf(fmt.Sprintln("-C only works with -m=repl and -w=stats"))
-		}
-		this.IfSetStopParsPoint = true
-	}*/
-
 }
 
 func (this *ConfCmd) CheckRequiredOption(v interface{}, prefix string, ifExt bool) bool {
