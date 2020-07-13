@@ -2,6 +2,7 @@ package base
 
 import (
 	"sync"
+	"github.com/siddontang/go-log/log"
 	"github.com/siddontang/go-mysql/mysql"
 	"github.com/siddontang/go-mysql/replication"
 	"my2sql/dsql"
@@ -53,6 +54,7 @@ func (this *MyBinEvent) CheckBinEvent(cfg *ConfCmd, ev *replication.BinlogEvent,
 	if cfg.IfSetStopFilePos {
 		cmpRe := myPos.Compare(cfg.StopFilePos)
 		if cmpRe >= 0 {
+			log.Infof("stop to get event. StopFilePos set. currentBinlog %s StopFilePos %s", myPos.String(), cfg.StopFilePos.String())
 			return C_reBreak
 		}
 	}
@@ -65,6 +67,7 @@ func (this *MyBinEvent) CheckBinEvent(cfg *ConfCmd, ev *replication.BinlogEvent,
 
 	if cfg.IfSetStopDateTime {
 		if ev.Header.Timestamp >= cfg.StopDatetime {
+			log.Infof("stop to get event. StopDateTime set. current event Timestamp %d Stop DateTime  Timestamp %d", ev.Header.Timestamp, cfg.StopDatetime)
 			return C_reBreak
 		}
 	}
