@@ -9,12 +9,7 @@ go版MySQL binlog解析工具，通过解析MySQL binlog ，可以生成原始SQ
 * 生成DML统计信息，可以找到哪些表更新的比较频繁
 * IO高TPS高， 帮忙查出那些表在频繁更新
 * 帮忙找出某个时间点数据库是否有大事务或者长事务
-* 支持json、blob、text、emoji等数据类型sql生产
-
-
-
-# 安装
-
+* 支持json、blob、text、emoji等数据类型sql生成
 
 
 # 产品性能对比
@@ -26,3 +21,4 @@ go版MySQL binlog解析工具，通过解析MySQL binlog ，可以生成原始SQ
 |1.1G binlog生成表DML统计信息      |   40秒     |该功能不支持|
 
 
+# 安装
