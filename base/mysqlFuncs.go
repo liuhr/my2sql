@@ -3,9 +3,10 @@ package base
 import (
 	"database/sql"
 	"fmt"
+	"strings"
+	"github.com/juju/errors"
 	"github.com/siddontang/go-log/log"
 	toolkits "my2sql/toolkits"
-	//"github.com/siddontang/go-mysql/mysql"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -16,11 +17,6 @@ const (
 	KEY_DB_TABLE_SEP   = "."
 	KEY_NONE_BINLOG    = "_"
 
-	/*
-		KEY_DDL_BINLOG = "binlog"
-		KEY_DDL_SPOS   = "startpos"
-		KEY_DDL_EPOS   = "stoppos"
-	*/
 )
 
 var (
@@ -115,71 +111,98 @@ func (this *TablesColumnsInfo) GetTbDefFromDb(cfg *ConfCmd, dbname string, tbnam
 		}
 	}
 
-	this.GetTableFieldsFromDb(cfg.FromDB, dbname, tbname)
-	this.GetTableKeysInfoFromDb(cfg.FromDB, dbname, tbname)
+	this.GetTableColumns(cfg.FromDB, dbname, tbname)
+	this.GetTableKeysInfo(cfg.FromDB, dbname, tbname)
 }
 
-func (this *TablesColumnsInfo) GetTableKeysInfoFromDb(db *sql.DB, dbName string, tbName string) error {
+func (this *TablesColumnsInfo) GetTableKeysInfo(db *sql.DB, dbName string, tbName string) error {
 	var (
-		kName, colName, ktype string
-		colPos                int
 		ok                    bool
 		dbTbKeysInfo          map[string]map[string]map[string]KeyInfo = map[string]map[string]map[string]KeyInfo{}
 		primaryKeys           map[string]map[string]map[string]bool    = map[string]map[string]map[string]bool{}
-		sql                   string                                   = `select k.CONSTRAINT_NAME, k.COLUMN_NAME, 
-						c.CONSTRAINT_TYPE, k.ORDINAL_POSITION 
-						from information_schema.TABLE_CONSTRAINTS as c inner 
-						join information_schema.KEY_COLUMN_USAGE as k 
-						on c.CONSTRAINT_NAME = k.CONSTRAINT_NAME and c.table_schema = k.table_schema 
-						and c.table_name=k.table_name 
-						where c.CONSTRAINT_TYPE in ('PRIMARY KEY', 'UNIQUE')
-						and c.table_schema ='%s' and c.table_name 
-						in ('%s') order by k.table_schema asc, k.table_name asc, k.CONSTRAINT_NAME asc, k.ORDINAL_POSITION asc`
 	)
-	//log.Infof("geting %s.%s primary/unique keys from mysql",dbName,tbName)
-	query := fmt.Sprintf(sql, dbName, tbName)
+
+	if dbName == "" || tbName == "" {
+		er := "schema/table is empty"
+		log.Errorf(er)
+		return errors.New(er)
+	}
+
+	query := fmt.Sprintf("SHOW INDEX FROM `%s`.`%s`", dbName, tbName)
 	rows, err := db.Query(query)
 	if err != nil {
-		rows.Close()
 		log.Errorf("%v fail to query mysql: "+query, err)
 		return err
 	}
+	defer rows.Close()
+
+	rowColumns, err := rows.Columns()
+	if err != nil {
+		log.Errorf("get columns name err %v",err)
+		return errors.Trace(err)
+	}
+
+	// Show an example.
+	/*
+		mysql> show index from test.t;
+		+-------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+		| Table | Non_unique | Key_name | Seq_in_index | Column_name | Collation | Cardinality | Sub_part | Packed | Null | Index_type | Comment | Index_comment |
+		+-------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+		| t     |          0 | PRIMARY  |            1 | a           | A         |           0 |     NULL | NULL   |      | BTREE      |         |               |
+		| t     |          0 | PRIMARY  |            2 | b           | A         |           0 |     NULL | NULL   |      | BTREE      |         |               |
+		| t     |          0 | ucd      |            1 | c           | A         |           0 |     NULL | NULL   | YES  | BTREE      |         |               |
+		| t     |          0 | ucd      |            2 | d           | A         |           0 |     NULL | NULL   | YES  | BTREE      |         |               |
+		+-------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+	*/
+	
 	for rows.Next() {
-		err := rows.Scan(&kName, &colName, &ktype, &colPos)
-		if err != nil {
-			log.Errorf("%v fail to get query result: "+query, err)
-			rows.Close()
-			return err
-		}
-		_, ok = dbTbKeysInfo[dbName]
-		if !ok {
-			dbTbKeysInfo[dbName] = map[string]map[string]KeyInfo{}
-		}
-		_, ok = dbTbKeysInfo[dbName][tbName]
-		if !ok {
-			dbTbKeysInfo[dbName][tbName] = map[string]KeyInfo{}
-		}
-		_, ok = dbTbKeysInfo[dbName][tbName][kName]
-		if !ok {
-			dbTbKeysInfo[dbName][tbName][kName] = KeyInfo{}
-		}
-		if !toolkits.ContainsString(dbTbKeysInfo[dbName][tbName][kName], colName) {
-			dbTbKeysInfo[dbName][tbName][kName] = append(dbTbKeysInfo[dbName][tbName][kName], colName)
+		data := make([]sql.RawBytes, len(rowColumns))
+		values := make([]interface{}, len(rowColumns))
+		for i := range values {
+			values[i] = &data[i]
 		}
 
-		if ktype == "PRIMARY KEY" {
-			_, ok = primaryKeys[dbName]
+		err = rows.Scan(values...)
+		if err != nil {
+			log.Errorf("rows scan err %v",err)
+			return errors.Trace(err)
+		}
+
+		nonUnique := string(data[1])
+		if nonUnique == "0" {
+			//if strings.ToLower(string(data[2])) == "PRIMARY" {
+			//}
+			_, ok = dbTbKeysInfo[dbName]
 			if !ok {
-				primaryKeys[dbName] = map[string]map[string]bool{}
+				dbTbKeysInfo[dbName] = map[string]map[string]KeyInfo{}
 			}
-			_, ok = primaryKeys[dbName][tbName]
+			_, ok = dbTbKeysInfo[dbName][tbName]
 			if !ok {
-				primaryKeys[dbName][tbName] = map[string]bool{}
+				dbTbKeysInfo[dbName][tbName] = map[string]KeyInfo{}
 			}
-			primaryKeys[dbName][tbName][kName] = true
+			kName := string(data[2])
+			_, ok = dbTbKeysInfo[dbName][tbName][kName]
+			if !ok {
+				dbTbKeysInfo[dbName][tbName][kName] = KeyInfo{}
+			}
+			colName := string(data[4])
+			if !toolkits.ContainsString(dbTbKeysInfo[dbName][tbName][kName], colName) {
+				dbTbKeysInfo[dbName][tbName][kName] = append(dbTbKeysInfo[dbName][tbName][kName], colName)
+			}
+
+			if strings.Contains(strings.ToLower(kName), "primary") {
+				_, ok = primaryKeys[dbName]
+				if !ok {
+					primaryKeys[dbName] = map[string]map[string]bool{}
+				}
+				_, ok = primaryKeys[dbName][tbName]
+				if !ok {
+					primaryKeys[dbName][tbName] = map[string]bool{}
+				}
+				primaryKeys[dbName][tbName][kName] = true
+			}
 		}
 	}
-	rows.Close()
 
 	var isPrimay bool = false
 	tbKey := GetAbsTableName(dbName, tbName)
@@ -194,71 +217,93 @@ func (this *TablesColumnsInfo) GetTableKeysInfoFromDb(db *sql.DB, dbName string,
 	}
 	this.tableInfos[tbKey].PrimaryKey = KeyInfo{}
 	this.tableInfos[tbKey].UniqueKeys = []KeyInfo{}
-	for kn, kf := range dbTbKeysInfo[dbName][tbName] {
+	for kname, kcolumn := range dbTbKeysInfo[dbName][tbName] {
 		isPrimay = false
 		_, ok = primaryKeys[dbName]
 		if ok {
 			_, ok = primaryKeys[dbName][tbName]
 			if ok {
-				_, ok = primaryKeys[dbName][tbName][kn]
-				if ok && primaryKeys[dbName][tbName][kn] {
+				_, ok = primaryKeys[dbName][tbName][kname]
+				if ok && primaryKeys[dbName][tbName][kname] {
 					isPrimay = true
 				}
 			}
 		}
 		if isPrimay {
-			this.tableInfos[tbKey].PrimaryKey = kf
+			this.tableInfos[tbKey].PrimaryKey = kcolumn
 		} else {
-			this.tableInfos[tbKey].UniqueKeys = append(this.tableInfos[tbKey].UniqueKeys, kf)
+			this.tableInfos[tbKey].UniqueKeys = append(this.tableInfos[tbKey].UniqueKeys, kcolumn)
 		}
 	}
 	return nil
-
 }
 
-func (this *TablesColumnsInfo) GetTableFieldsFromDb(db *sql.DB, dbname string, tbname string) error {
+
+func  (this *TablesColumnsInfo) GetTableColumns(db *sql.DB, dbname string, tbname string) error{
 	var (
-		colName        string
-		dataType       string
-		colPos         int
-		ok             bool
 		dbTbFieldsInfo map[string][]FieldInfo = map[string][]FieldInfo{}
-		sql            string                 = `select COLUMN_NAME, DATA_TYPE, ORDINAL_POSITION 
-						from information_schema.columns 
-						where table_schema ='%s' and table_name='%s' 
-						order by table_schema asc, table_name asc, ORDINAL_POSITION asc`
 	)
-	//log.Infof("geting table %s.%s fields from mysql", dbname, tbname)
-	query := fmt.Sprintf(sql, dbname, tbname)
+
+	if dbname == "" || tbname == "" {
+		er := "schema/table is empty"
+		log.Errorf(er)
+		return errors.New(er)
+	}
+
+	query := fmt.Sprintf("SHOW COLUMNS FROM `%s`.`%s`", dbname, tbname)
 	rows, err := db.Query(query)
 	if err != nil {
 		log.Errorf("%v fail to query mysql: "+query, err)
-		rows.Close()
 		return err
 	}
+	defer rows.Close()
+
+	rowColumns, err := rows.Columns()
+	if err != nil {
+		log.Errorf("get rows columns err %v",err)
+		return errors.Trace(err)
+	}
+
+	// Show an example.
+	/*
+	   mysql> show columns from test.tb;
+	   +-------+---------+------+-----+---------+-------+
+	   | Field | Type    | Null | Key | Default | Extra |
+	   +-------+---------+------+-----+---------+-------+
+	   | a     | int(11) | NO   | PRI | NULL    |       |
+	   | b     | int(11) | NO   | PRI | NULL    |       |
+	   | c     | int(11) | YES  | MUL | NULL    |       |
+	   | d     | int(11) | YES  |     | NULL    |       |
+	   +-------+---------+------+-----+---------+-------+
+	*/
+
 	tbKey := GetAbsTableName(dbname, tbname)
 	for rows.Next() {
-		err := rows.Scan(&colName, &dataType, &colPos)
-		if err != nil {
-			log.Infof("%v error to get query result: "+query, err)
-			rows.Close()
-			return err
+		//err := rows.Scan(&colName, &dataType, &nullValue, &KeyValue, &defaultValue, &extraValue)
+		data := make([]sql.RawBytes, len(rowColumns))
+		values := make([]interface{}, len(rowColumns))
+		for i := range values {
+			values[i] = &data[i]
 		}
-
-		_, ok = dbTbFieldsInfo[tbKey]
+		err = rows.Scan(values...)
+		if err != nil {
+			log.Errorf("rows scan err %v",err)
+			return errors.Trace(err)
+		}
+		_, ok := dbTbFieldsInfo[tbKey]
 		if !ok {
 			dbTbFieldsInfo[tbKey] = []FieldInfo{}
 		}
-
-		dbTbFieldsInfo[tbKey] = append(dbTbFieldsInfo[tbKey], FieldInfo{FieldName: colName, FieldType: dataType})
+		dbTbFieldsInfo[tbKey] = append(dbTbFieldsInfo[tbKey], FieldInfo{FieldName: string(data[0]), FieldType: GetFiledType(string(data[1]))})
 	}
-	rows.Close()
 	if len(this.tableInfos) < 1 {
 		this.tableInfos = map[string]*TblInfoJson{}
 	}
 	this.tableInfos[tbKey] = &TblInfoJson{Database: dbname, Table: tbname, Columns: dbTbFieldsInfo[tbKey]}
 	return nil
+
 }
+
 
 func (this *TablesColumnsInfo) GetTableInfoJson(schema string, table string) (*TblInfoJson, error) {
 	tbKey := GetAbsTableName(schema, table)

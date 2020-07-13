@@ -251,36 +251,6 @@ func (this *ConfCmd) ParseCmdOptions() {
 		
 	}
 
-	/*
-	this.ifHasDbReg = false
-	if dbs != "" {
-		dbArr := CommaSeparatedListToArray(dbs)
-		for _, dbRegStr := range dbArr {
-			dbreg, err := regexp.Compile(dbRegStr)
-			if err != nil {
-				log.Fatalf(fmt.Sprintf("%s is not a valid regular expression %v", dbRegStr, err))
-			}
-			this.DatabaseRegs = append(this.DatabaseRegs, dbreg)
-		}
-		if len(this.DatabaseRegs) > 0 {
-			this.ifHasDbReg = true
-		}
-	}
-
-	this.ifHasTbReg = false
-	if tbs != "" {
-		tbArr := CommaSeparatedListToArray(tbs)
-		for _, tbRegStr := range tbArr {
-			tbReg, err := regexp.Compile(tbRegStr)
-			if err != nil {
-				log.Fatalf(fmt.Sprintf("%s is not a valid regular expression %v", tbRegStr, err))
-			}
-			this.TableRegs = append(this.TableRegs, tbReg)
-		}
-		if len(this.TableRegs) > 0 {
-			this.ifHasTbReg = true
-		}
-	} */
 
 	if sqlTypes != "" {
 		this.FilterSql = CommaSeparatedListToArray(sqlTypes)
@@ -345,11 +315,14 @@ func (this *ConfCmd) ParseCmdOptions() {
 
 	if this.WorkType == "2sql" || this.WorkType == "rollback" {
 		this.EventChan = make(chan MyBinEvent, this.Threads*2)
+		//this.StatChan = make(chan BinEventStats, this.Threads*2)
 		this.SqlChan = make(chan ForwardRollbackSqlOfPrint, this.Threads*2)
+		//this.OpenStatsResultFiles()
+
 	}
 
 	if this.WorkType == "stats" {
-		this.StatChan = make(chan BinEventStats, 10000)
+		this.StatChan = make(chan BinEventStats, this.Threads*2)
 		this.OpenStatsResultFiles()
 	}
 
@@ -532,6 +505,7 @@ func (this *ConfCmd) OpenStatsResultFiles() {
 func (this *ConfCmd) CloseChan() {
 	if this.WorkType == "2sql" || this.WorkType == "rollback" {
 		close(this.EventChan)
+		//close(this.StatChan)
 	}
 
 	if this.WorkType == "stats" {

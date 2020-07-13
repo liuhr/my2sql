@@ -102,12 +102,11 @@ func SendBinlogEventRepl(cfg *ConfCmd) {
 		} else if chkRe == C_reBreak {
 			break
 		} else if chkRe == C_reFileEnd {
-			break
-		} else if chkRe == C_reFileEnd {
 			continue
 		}
 
 		db, tb, sqlType, sql, rowCnt = GetDbTbAndQueryAndRowCntFromBinevent(ev)
+	
 		if sqlType == "query" {
 			sqlLower = strings.ToLower(sql)
 			if sqlLower == "begin" {
@@ -150,18 +149,19 @@ func SendBinlogEventRepl(cfg *ConfCmd) {
 				cfg.EventChan <- *oneMyEvent
 			}
 		} else {
-			fmt.Println(db," ",tb," ",rowCnt)
-		/*	if sqlType != "" {
-				if sqlType == "query" {
-					cfg.StatChan <- BinEventStats{Timestamp: ev.Header.Timestamp, Binlog: currentBinlog, StartPos: ev.Header.LogPos - ev.Header.EventSize, StopPos: ev.Header.LogPos,
-							Database: db, Table: tb, QuerySql: sql, RowCnt: rowCnt, QueryType: sqlType}
-				} else {
-					cfg.StatChan <- BinEventStats{Timestamp: ev.Header.Timestamp, Binlog: currentBinlog, StartPos: tbMapPos, StopPos: ev.Header.LogPos,
-						Database: db, Table: tb, QuerySql: sql, RowCnt: rowCnt, QueryType: sqlType}
-				}
-			} */
-
-		}	
-
+			fmt.Println(db,tb,rowCnt)
+		}
+		
+		// output analysis result whatever the WorkType is	
+		/*if sqlType != "" {
+			if sqlType == "query" {
+				cfg.StatChan <- BinEventStats{Timestamp: ev.Header.Timestamp, Binlog: currentBinlog, StartPos: ev.Header.LogPos - ev.Header.EventSize, StopPos: ev.Header.LogPos,
+					Database: db, Table: tb, QuerySql: sql, RowCnt: rowCnt, QueryType: sqlType}
+			} else {
+				cfg.StatChan <- BinEventStats{Timestamp: ev.Header.Timestamp, Binlog: currentBinlog, StartPos: tbMapPos, StopPos: ev.Header.LogPos,
+					Database: db, Table: tb, QuerySql: sql, RowCnt: rowCnt, QueryType: sqlType}
+			}
+		}*/
+		
 	}
 }

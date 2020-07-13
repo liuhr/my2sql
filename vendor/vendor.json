@@ -27,6 +27,12 @@
 			"revisionTime": "2020-05-31T10:04:19Z"
 		},
 		{
+			"checksumSHA1": "ieT1S+6qLEpKzo/q/eZNIyjiMQ4=",
+			"path": "github.com/juju/errors",
+			"revision": "3fe23663418fc1d724868c84f21b7519bbac7441",
+			"revisionTime": "2020-03-30T14:02:19Z"
+		},
+		{
 			"checksumSHA1": "wFLw18XvRl2NnXP3wReuyB4KXk4=",
 			"path": "github.com/pingcap/errors",
 			"revision": "95897b64e011c18f05b4daac8ff3098a6d80c57e",

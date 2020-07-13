@@ -83,6 +83,14 @@ func GetBinlogBasenameAndIndex(binlog string) (string, int) {
 	return baseName, indx
 }
 
+func GetFiledType(filed string) string{
+	arr := strings.Split(filed, "(")
+	if len(arr) < 1 {
+		log.Fatalf("get feild is null %s",filed)
+	}
+	return arr[0]
+}
+
 func GetNextBinlog(baseName string, indx int) string {
 	indx++
 	//idxStr := strconv.Itoa(indx)

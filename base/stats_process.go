@@ -1,12 +1,11 @@
 package base
 
 import (
-	"fmt"
-	//"github.com/openark/golib/log"
-	"github.com/siddontang/go-log/log"
-	"my2sql/dsql"
 	"os"
+	"fmt"
 	"path/filepath"
+	"my2sql/dsql"
+	"github.com/siddontang/go-log/log"
 	"github.com/siddontang/go-mysql/replication"
 )
 
