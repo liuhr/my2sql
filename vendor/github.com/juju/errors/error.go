@@ -14,6 +14,7 @@ import (
 //
 // It may be embedded in custom error types to add extra information that
 // this errors package can understand.
+
 type Err struct {
 	// message holds an annotation of the error.
 	message string
