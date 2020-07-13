@@ -21,4 +21,6 @@ go版MySQL binlog解析工具，通过解析MySQL binlog ，可以生成原始SQ
 |1.1G binlog生成表DML统计信息      |   40秒     |该功能不支持|
 
 
-# 安装
+# 使用
+待补充
+
