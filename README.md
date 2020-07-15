@@ -13,12 +13,13 @@ go版MySQL binlog解析工具，通过解析MySQL binlog ，可以生成原始SQ
 
 
 # 产品性能对比
+binlog2sql当前是业界使用最广泛的工具，下面对my2sql和binlog2sql做个性能对比。
 
 |                          |my2sql     |binlog2sql|
 |---                       |---         |---   |
 |1.1G binlog生成回滚SQL      |  1分40秒   |    65分钟  |
 |1.1G binlog生成原始SQL      |  1分30秒   |     50分钟|
-|1.1G binlog生成表DML统计信息      |   40秒     |该功能不支持|
+|1.1G binlog生成表DML统计信息      |   40秒     |不支持|
 
 
 # 使用
