@@ -49,6 +49,11 @@ transaction with affected rows greater or equal to this value is considerated as
 库及表条件过滤, 以逗号分隔
 ```
 
+-sql
+```
+要解析的sql类型，可以选参数化insert、update、delete，默认全部解析
+```
+
 -doNotAddPrifixDb
 
 ```
