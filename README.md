@@ -157,6 +157,8 @@ default false, this is, use changed columns to build set part, use primary/uniqu
 timestamp
 * 此工具是伪装成从库拉取binlog，需要连接数据库的用户有SELECT, REPLICATION SLAVE, REPLICATION CLIENT权限
 
+# 感谢
+ 感谢https://github.com/siddontang的binlog解释库， 感谢dropbox的sqlbuilder库，感谢my2fback、binlog_inspector
 
 
 
