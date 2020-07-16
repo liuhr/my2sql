@@ -313,20 +313,14 @@ func (this *ConfCmd) ParseCmdOptions() {
 		this.IfSetStopParsPoint = false
 	}
 
-	if this.WorkType == "2sql" || this.WorkType == "rollback" {
-		this.EventChan = make(chan MyBinEvent, this.Threads*2)
-		this.StatChan = make(chan BinEventStats, this.Threads*2)
-		this.SqlChan = make(chan ForwardRollbackSqlOfPrint, this.Threads*2)
-		this.OpenStatsResultFiles()
-		this.OpenTxResultFiles()
+	
+	this.EventChan = make(chan MyBinEvent, this.Threads*2)
+	this.StatChan = make(chan BinEventStats, this.Threads*2)
+	this.SqlChan = make(chan ForwardRollbackSqlOfPrint, this.Threads*2)
+	this.StatChan = make(chan BinEventStats, this.Threads*2)
+	this.OpenStatsResultFiles()
+	this.OpenTxResultFiles()
 
-	}
-
-	if this.WorkType == "stats" {
-		this.StatChan = make(chan BinEventStats, this.Threads*2)
-		this.OpenStatsResultFiles()
-		this.OpenTxResultFiles()
-	}
 
 	this.CheckCmdOptions()
 	this.CreateDB()
