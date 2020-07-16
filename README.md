@@ -86,6 +86,10 @@ default false, this is, use changed columns to build set part, use primary/uniqu
 线程数，默认8个
 ```
 
+-work-type
+```
+2sql：生成原始sql，rollback：生成回滚sql，stats：只统计DML、事务信息
+```
 
 
 
