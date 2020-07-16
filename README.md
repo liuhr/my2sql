@@ -145,6 +145,10 @@ default false, this is, use changed columns to build set part, use primary/uniqu
 ./my2sql  -user root -password xxxx -host 127.0.0.1   -port 3306  -work-type 2sql  -start-file mysql-bin.011259  -start-pos 4   -output-toScreen 
 ```
 
+# 安装
+* 下载
+ + 有编译好的linux版本
+ * [Linux]()
 
 
 
