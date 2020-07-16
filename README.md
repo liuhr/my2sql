@@ -22,34 +22,58 @@ binlog2sql当前是业界使用最广泛的工具，下面对my2sql和binlog2sql
 |1.1G binlog生成表DML统计信息      |   40秒     |不支持|
 
 
+# 参数说明
+-U	
+```
+优先使用unique key作为where条件，默认false
+```
+
+-add-extraInfo 
+```是否把database/table/datetime/binlogposition...信息以注释的方式加入生产的每条sql前 
+# datetime=2020-07-16_10:44:09 database=orchestrator table=cluster_domain_name binlog=mysql-bin.011519 startpos=15552 stoppos=15773
+UPDATE `orchestrator`.`cluster_domain_name` SET `last_registered`='2020-07-16 10:44:09' WHERE `cluster_name`='192.168.1.1:3306'
+```
+
+
 # 使用案例
 ### 解析出标准SQL
 #### 根据时间点解析出标准SQL
+```
 ./my2sql  -user root -password xxxx -host 127.0.0.1   -port 3306  -work-type 2sql  -start-file mysql-bin.011259  -start-datetime "2020-07-16 10:20:00" -stop-datetime "2020-07-16 11:00:00" -output-dir ./tmpdir
+```
 
 #### 根据pos点解析出标准SQL
+```
 ./my2sql  -user root -password xxxx -host 127.0.0.1   -port 3306  -work-type 2sql  -start-file mysql-bin.011259  -start-pos 4 -stop-file mysql-bin.011259 -stop-pos 583918266  -output-dir ./tmpdir
-
+```
 
 ### 解析出回滚SQL
 #### 根据时间点解析出回滚SQL
+```
 ./my2sql  -user root -password xxxx -host 127.0.0.1   -port 3306  -work-type rollback  -start-file mysql-bin.011259  -start-datetime "2020-07-16 10:20:00" -stop-datetime "2020-07-16 11:00:00" -output-dir ./tmpdir
+```
 
 #### 根据pos点解析出回滚SQL
+```
 ./my2sql  -user root -password xxxx -host 127.0.0.1   -port 3306  -work-type rollback  -start-file mysql-bin.011259  -start-pos 4 -stop-file mysql-bin.011259 -stop-pos 583918266  -output-dir ./tmpdir
-
+```
 
 ### 统计DML以及大事务
 #### 统计时间范围各个表的DML操作数量，统计一个事务大于500条、时间大于300秒的事务
+```
 ./my2sql  -user root -password xxxx -host 127.0.0.1   -port 3306  -work-type stats  -start-file mysql-bin.011259  -start-datetime "2020-07-16 10:20:00" -stop-datetime "2020-07-16 11:00:00"  -big-trx-row-limit 500 -long-trx-seconds 300   -output-dir ./tmpdir
+```
 
 #### 统计一段pos点范围各个表的DML操作数量，统计一个事务大于500条、时间大于300秒的事务
+```
 ./my2sql  -user root -password xxxx -host 127.0.0.1   -port 3306  -work-type stats  -start-file mysql-bin.011259  -start-pos 4 -stop-file mysql-bin.011259 -stop-pos 583918266  -big-trx-row-limit 500 -long-trx-seconds 300   -output-dir ./tmpdir
+```
 
 
 ### 从某一个pos点解析出标准SQL，并且持续打印到屏幕
+```
 ./my2sql  -user root -password xxxx -host 127.0.0.1   -port 3306  -work-type 2sql  -start-file mysql-bin.011259  -start-pos 4   -output-toScreen 
-
+```
 
 
 
