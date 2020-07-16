@@ -23,5 +23,5 @@ binlog2sql当前是业界使用最广泛的工具，下面对my2sql和binlog2sql
 
 
 # 使用
-待补充
+## 解析出标准SQL
 
