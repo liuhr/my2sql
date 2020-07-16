@@ -82,11 +82,11 @@ default false, this is, use changed columns to build set part, use primary/uniqu
 ```
 
 -threads
--work-type
+```
 线程数，默认8个
 ```
 
--work-type 
+
 
 
 
