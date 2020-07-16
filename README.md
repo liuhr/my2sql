@@ -48,7 +48,7 @@ binlog2sql当前是业界使用最广泛的工具，下面对my2sql和binlog2sql
 
 
 ### 从某一个pos点解析出标准SQL，并且持续打印到屏幕
-./my2sql  -user root -password xxxx -host 127.0.0.1   -port 3306  -work-type stats  -start-file mysql-bin.011259  -start-pos 4   -output-toScreen 
+./my2sql  -user root -password xxxx -host 127.0.0.1   -port 3306  -work-type 2sql  -start-file mysql-bin.011259  -start-pos 4   -output-toScreen 
 
 
 
