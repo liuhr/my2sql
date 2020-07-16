@@ -24,4 +24,6 @@ binlog2sql当前是业界使用最广泛的工具，下面对my2sql和binlog2sql
 
 # 使用
 ## 解析出标准SQL
+### 根据时间点解析出标准SQL
+./my2sql  -user root -password xxxx -host 127.0.0.1   -port 3306  -work-type 2sql  -start-file mysql-bin.011259  -start-datetime "2020-07-16 10:20:00" -stop-datetime "2020-07-16 11:00:00" -output-dir ./tmpdir
 
