@@ -148,12 +148,10 @@ func SendBinlogEventRepl(cfg *ConfCmd) {
 				oneMyEvent.TrxStatus = trxStatus
 				cfg.EventChan <- *oneMyEvent
 			}
-		} else {
-			fmt.Println(db,tb,rowCnt)
-		}
+		} 
 		
-		// output analysis result whatever the WorkType is	
-		/*if sqlType != "" {
+		//output analysis result whatever the WorkType is	
+		if sqlType != "" {
 			if sqlType == "query" {
 				cfg.StatChan <- BinEventStats{Timestamp: ev.Header.Timestamp, Binlog: currentBinlog, StartPos: ev.Header.LogPos - ev.Header.EventSize, StopPos: ev.Header.LogPos,
 					Database: db, Table: tb, QuerySql: sql, RowCnt: rowCnt, QueryType: sqlType}
@@ -161,7 +159,7 @@ func SendBinlogEventRepl(cfg *ConfCmd) {
 				cfg.StatChan <- BinEventStats{Timestamp: ev.Header.Timestamp, Binlog: currentBinlog, StartPos: tbMapPos, StopPos: ev.Header.LogPos,
 					Database: db, Table: tb, QuerySql: sql, RowCnt: rowCnt, QueryType: sqlType}
 			}
-		}*/
+		}
 		
 	}
 }

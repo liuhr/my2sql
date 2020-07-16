@@ -54,7 +54,7 @@ var (
 		"BigTrxRowLimit": []int{10, 30000, 500},
 		"LongTrxSeconds": []int{1, 3600, 300},
 		"InsertRows":     []int{1, 500, 30},
-		"Threads":        []int{1, 8, 2},
+		"Threads":        []int{1, 16, 2},
 	}
 
 	GStatsColumns []string = []string{
@@ -150,7 +150,7 @@ type ConfCmd struct {
 	SqlChan    chan ForwardRollbackSqlOfPrint
 
 	StatFH    *os.File
-	DdlFH     *os.File
+	//DdlFH     *os.File
 	BiglongFH *os.File
 
 	BinlogStreamer *replication.BinlogStreamer
@@ -315,15 +315,17 @@ func (this *ConfCmd) ParseCmdOptions() {
 
 	if this.WorkType == "2sql" || this.WorkType == "rollback" {
 		this.EventChan = make(chan MyBinEvent, this.Threads*2)
-		//this.StatChan = make(chan BinEventStats, this.Threads*2)
+		this.StatChan = make(chan BinEventStats, this.Threads*2)
 		this.SqlChan = make(chan ForwardRollbackSqlOfPrint, this.Threads*2)
-		//this.OpenStatsResultFiles()
+		this.OpenStatsResultFiles()
+		this.OpenTxResultFiles()
 
 	}
 
 	if this.WorkType == "stats" {
 		this.StatChan = make(chan BinEventStats, this.Threads*2)
 		this.OpenStatsResultFiles()
+		this.OpenTxResultFiles()
 	}
 
 	this.CheckCmdOptions()
@@ -502,10 +504,26 @@ func (this *ConfCmd) OpenStatsResultFiles() {
 	this.StatFH = statFH
 }
 
+func (this *ConfCmd) OpenTxResultFiles() {
+	biglongFile := filepath.Join(this.OutputDir, "biglong_trx.txt")
+	biglongFH, err := os.OpenFile(biglongFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	if err != nil {
+		log.Fatalf("fail to open file %v"+biglongFile, err)
+	}
+	biglongFH.WriteString(GetBigLongTrxPrintHeaderLine(Stats_BigLongTrx_Header_Column_names))
+	this.BiglongFH = biglongFH
+}
+
+
+func (this *ConfCmd) CloseFH(){
+	this.StatFH.Close()
+	this.BiglongFH.Close()
+}
+
 func (this *ConfCmd) CloseChan() {
 	if this.WorkType == "2sql" || this.WorkType == "rollback" {
 		close(this.EventChan)
-		//close(this.StatChan)
+		close(this.StatChan)
 	}
 
 	if this.WorkType == "stats" {
