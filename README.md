@@ -55,6 +55,27 @@ Prefix table name witch database name in sql,ex: insert into db1.tb1 (x1, x1) va
 默认生成insert into db1.tb1 (x1, x1) values (y1, y1)类sql，也可以生成不带库名的sql
 ```
 
+-file-per-table
+```
+为每个表生成一个sql文件
+```
+
+-full-columns
+```
+For update sql, include unchanged columns. for update and delete, use all columns to build where condition.
+default false, this is, use changed columns to build set part, use primary/unique key to build where condition
+生成的sql是否带全列信息，默认false
+```
+-ignorePrimaryKeyForInsert
+```
+生成
+```
+-ignorePrimaryKeyForInsert的
+-ignorePrimaryKeyForInsert
+
+
+
+
 
 
 
