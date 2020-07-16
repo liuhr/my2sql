@@ -146,7 +146,6 @@ default false, this is, use changed columns to build set part, use primary/uniqu
 ```
 
 # 安装
-* 下载
  + 有编译好的linux版本
  * [Linux](https://github.com/liuhr/my2sql/blob/master/releases/my2sql)
 
