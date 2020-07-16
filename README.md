@@ -52,7 +52,7 @@ transaction with affected rows greater or equal to this value is considerated as
 
 ```
 Prefix table name witch database name in sql,ex: insert into db1.tb1 (x1, x1) values (y1, y1)
-
+默认生成insert into db1.tb1 (x1, x1) values (y1, y1)类sql，也可以生成不带库名的sql
 ```
 
 
