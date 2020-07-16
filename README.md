@@ -51,7 +51,7 @@ transaction with affected rows greater or equal to this value is considerated as
 
 -sql
 ```
-要解析的sql类型，可以选参数化insert、update、delete，默认全部解析
+要解析的sql类型，可选参数insert、update、delete，默认全部解析
 ```
 
 -doNotAddPrifixDb
