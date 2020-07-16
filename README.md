@@ -149,6 +149,13 @@ default false, this is, use changed columns to build set part, use primary/uniqu
  + 有编译好的linux版本  [点击下载Linux版](https://github.com/liuhr/my2sql/blob/master/releases/my2sql)
 
 
+# 限制
+* 使用回滚/闪回功能时，binlog格式必须为row,且binlog_row_image=full， DML统计以及大事务分析不受影响
+* 只能回滚DML， 不能回滚DDL
+* 支持指定-tl时区来解释binlog中time/datetime字段的内容。开始时间-start-datetime与结束时间-stop-datetime也会使用此指定的时区，
+   + 但注意此开始与结束时间针对的是binlog event header中保存的unix timestamp。结果中的额外的datetime时间信息都是binlog event header中的unix
+timestamp
+* 此工具是伪装成从库拉取binlog，需要连接数据库的用户有SELECT, REPLICATION SLAVE, REPLICATION CLIENT权限
 
 
 
