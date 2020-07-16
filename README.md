@@ -22,17 +22,41 @@ binlog2sql当前是业界使用最广泛的工具，下面对my2sql和binlog2sql
 |1.1G binlog生成表DML统计信息      |   40秒     |不支持|
 
 
-# 参数说明
+# 重要参数说明
 -U	
 ```
 优先使用unique key作为where条件，默认false
 ```
 
--add-extraInfo 
-```是否把database/table/datetime/binlogposition...信息以注释的方式加入生产的每条sql前 
+-add-extraInfo
+```
+是否把database/table/datetime/binlogposition...信息以注释的方式加入生成的每条sql前，默认false
+```
+```
 # datetime=2020-07-16_10:44:09 database=orchestrator table=cluster_domain_name binlog=mysql-bin.011519 startpos=15552 stoppos=15773
 UPDATE `orchestrator`.`cluster_domain_name` SET `last_registered`='2020-07-16 10:44:09' WHERE `cluster_name`='192.168.1.1:3306'
 ```
+-big-trx-row-limit n
+
+```
+transaction with affected rows greater or equal to this value is considerated as big transaction 
+找出满足n条sql的事务，默认500条
+```
+
+-databases 、 -tables
+```
+库及表条件过滤, 以逗号分隔
+```
+
+-doNotAddPrifixDb
+
+```
+Prefix table name witch database name in sql,ex: insert into db1.tb1 (x1, x1) values (y1, y1)
+
+```
+
+
+
 
 
 # 使用案例
