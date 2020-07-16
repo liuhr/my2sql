@@ -68,10 +68,31 @@ default false, this is, use changed columns to build set part, use primary/uniqu
 ```
 -ignorePrimaryKeyForInsert
 ```
-生成
+生成的insert语句是否去掉主键，默认false
 ```
--ignorePrimaryKeyForInsert的
--ignorePrimaryKeyForInsert
+
+-output-dir
+```
+将生成的结果存放到制定目录
+```
+
+-output-toScreen
+```
+将生成的结果打印到屏幕，默认写到文件
+```
+
+-threads
+-work-type
+线程数，默认8个
+```
+
+-work-type 
+
+
+
+
+
+
 
 
 
