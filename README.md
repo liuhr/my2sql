@@ -151,8 +151,6 @@ default false, this is, use changed columns to build set part, use primary/uniqu
 ./my2sql  -user root -password xxxx -host 127.0.0.1   -port 3306  -work-type 2sql  -start-file mysql-bin.011259  -start-pos 4   -output-toScreen 
 ```
 
-![](https://github.com/liuhr/my2sql/tree/master/misc/img/DML.jpg)
-
 # 安装
  + 有编译好的linux版本  [点击下载Linux版](https://github.com/liuhr/my2sql/blob/master/releases/my2sql)
 
