@@ -14,7 +14,7 @@ go版MySQL binlog解析工具，通过解析MySQL binlog ，可以生成原始SQ
 
 
 # 产品性能对比
-binlog2sql当前是业界使用最广泛的工具，下面对my2sql和binlog2sql做个性能对比。
+binlog2sql当前是业界使用最广泛的MySQL回滚工具，下面对my2sql和binlog2sql做个性能对比。
 
 |                          |my2sql     |binlog2sql|
 |---                       |---         |---   |
