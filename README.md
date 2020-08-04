@@ -23,11 +23,11 @@ binlog2sql当前是业界使用最广泛的MySQL回滚工具，下面对my2sql�
 |1.1G binlog生成表DML统计信息、以及事务统计信息     |   40秒     |不支持|
 
 # 快速开始
-执行闪回操作具体操作流程
+### 执行闪回操作具体操作流程
 [https://blog.csdn.net/liuhanran/article/details/107426162](https://blog.csdn.net/liuhanran/article/details/107426162)
-解析binlog生成标准SQL
+### 解析binlog生成标准SQL
 [https://blog.csdn.net/liuhanran/article/details/107427204](https://blog.csdn.net/liuhanran/article/details/107427204)
-解析binlog 统计DML、长事务与大事务分析
+### 解析binlog 统计DML、长事务与大事务分析
 [https://blog.csdn.net/liuhanran/article/details/107427391](https://blog.csdn.net/liuhanran/article/details/107427391)
 
 
