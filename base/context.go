@@ -86,6 +86,8 @@ type ConfCmd struct {
 	//ifHasDbReg   bool
 	//TableRegs    []*regexp.Regexp
 	//ifHasTbReg   bool
+	IgnoreDatabases []string
+	IgnoreTables []string
 	FilterSql    []string
 	FilterSqlLen int
 
@@ -162,6 +164,9 @@ func (this *ConfCmd) ParseCmdOptions() {
 		version          bool
 		dbs              string
 		tbs              string
+		ignoreDbs 		 string
+		ignoreTbs 		 string
+
 		sqlTypes         string
 		startTime        string
 		stopTime         string
@@ -186,6 +191,8 @@ func (this *ConfCmd) ParseCmdOptions() {
 
 	flag.StringVar(&dbs, "databases", "", "only parse these databases, comma seperated, default all.")
 	flag.StringVar(&tbs, "tables", "", "only parse these tables, comma seperated, DONOT prefix with schema, default all.")
+	flag.StringVar(&ignoreDbs, "ignoreDatabases", "","ignore parse these databases, comma seperated, default null")
+	flag.StringVar(&ignoreTbs, "ignoreTables", "","ignore parse these tables, comma seperated, default null")
 	flag.StringVar(&sqlTypes, "sql", "", StrSliceToString(GOptsValidFilterSql, C_joinSepComma, C_validOptMsg)+". only parse these types of sql, comma seperated, valid types are: insert, update, delete; default is all(insert,update,delete)")
 	flag.BoolVar(&this.IgnorePrimaryKeyForInsert, "ignorePrimaryKeyForInsert", false, "for insert statement when -workType=2sql, ignore primary key")
 
@@ -249,6 +256,14 @@ func (this *ConfCmd) ParseCmdOptions() {
 	if tbs != "" {
 		this.Tables = CommaSeparatedListToArray(tbs)
 		
+	}
+
+	if ignoreDbs != "" {
+		this.IgnoreDatabases = CommaSeparatedListToArray(ignoreDbs)
+	}
+
+	if ignoreTbs != "" {
+		this.IgnoreTables = CommaSeparatedListToArray(ignoreTbs)
 	}
 
 

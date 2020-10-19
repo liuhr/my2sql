@@ -126,6 +126,18 @@ func (this *MyBinEvent) CheckBinEvent(cfg *ConfCmd, ev *replication.BinlogEvent,
 				return C_reContinue
 			}
 		}
+
+		if len(cfg.IgnoreDatabases) > 0 {
+			if toolkits.ContainsString(cfg.IgnoreDatabases, db) {
+				return C_reContinue
+			}
+		}
+
+		if len(cfg.IgnoreTables) > 0 {
+			if toolkits.ContainsString(cfg.IgnoreTables, tb) {
+				return C_reContinue
+			}
+		}
 	
 		this.BinEvent = wrEvent
 		this.IfRowsEvent = true
