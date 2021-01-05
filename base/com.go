@@ -2,6 +2,7 @@ package base
 
 import (
 	"sync"
+	"fmt"
 	"github.com/siddontang/go-log/log"
 	"github.com/siddontang/go-mysql/mysql"
 	"github.com/siddontang/go-mysql/replication"
@@ -110,6 +111,8 @@ func (this *MyBinEvent) CheckBinEvent(cfg *ConfCmd, ev *replication.BinlogEvent,
 		replication.DELETE_ROWS_EVENTv2:
 
 		wrEvent := ev.Event.(*replication.RowsEvent)
+		fmt.Println("xxx")
+		fmt.Println(wrEvent.Rows)
 		db := string(wrEvent.Table.Schema)
 		tb := string(wrEvent.Table.Table)
 		/*if !cfg.IsTargetTable(db, tb) {
@@ -140,6 +143,8 @@ func (this *MyBinEvent) CheckBinEvent(cfg *ConfCmd, ev *replication.BinlogEvent,
 		}
 	
 		this.BinEvent = wrEvent
+		fmt.Println("xxxx")
+		fmt.Println()
 		this.IfRowsEvent = true
 	case replication.QUERY_EVENT:
 		this.IfRowsEvent = false
