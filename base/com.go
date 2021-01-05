@@ -1,13 +1,13 @@
 package base
 
 import (
-	"sync"
 	"fmt"
 	"github.com/siddontang/go-log/log"
 	"github.com/siddontang/go-mysql/mysql"
 	"github.com/siddontang/go-mysql/replication"
 	"my2sql/dsql"
 	toolkits "my2sql/toolkits"
+	"sync"
 )
 
 type BinEventHandlingIndx struct {
@@ -33,7 +33,6 @@ type MyBinEvent struct {
 	QuerySql    *dsql.SqlInfo // for ddl and binlog which is not row format
 	OrgSql      string        // for ddl and binlog which is not row format
 }
-
 
 func (this *MyBinEvent) CheckBinEvent(cfg *ConfCmd, ev *replication.BinlogEvent, currentBinlog *string) int {
 	myPos := mysql.Position{Name: *currentBinlog, Pos: ev.Header.LogPos}
@@ -100,8 +99,7 @@ func (this *MyBinEvent) CheckBinEvent(cfg *ConfCmd, ev *replication.BinlogEvent,
 		}
 	}
 
-
-	BinEventCheck:
+BinEventCheck:
 	switch ev.Header.EventType {
 	case replication.WRITE_ROWS_EVENTv1,
 		replication.UPDATE_ROWS_EVENTv1,
@@ -111,14 +109,13 @@ func (this *MyBinEvent) CheckBinEvent(cfg *ConfCmd, ev *replication.BinlogEvent,
 		replication.DELETE_ROWS_EVENTv2:
 
 		wrEvent := ev.Event.(*replication.RowsEvent)
-		fmt.Println("xxx")
 		fmt.Println(wrEvent.Rows)
 		db := string(wrEvent.Table.Schema)
 		tb := string(wrEvent.Table.Table)
 		/*if !cfg.IsTargetTable(db, tb) {
 			return C_reContinue
 		}*/
-		
+
 		if len(cfg.Databases) > 0 {
 			if !toolkits.ContainsString(cfg.Databases, db) {
 				return C_reContinue
@@ -141,14 +138,11 @@ func (this *MyBinEvent) CheckBinEvent(cfg *ConfCmd, ev *replication.BinlogEvent,
 				return C_reContinue
 			}
 		}
-	
+
 		this.BinEvent = wrEvent
-		fmt.Println("xxxx")
-		fmt.Println()
 		this.IfRowsEvent = true
 	case replication.QUERY_EVENT:
 		this.IfRowsEvent = false
-
 
 	case replication.XID_EVENT:
 		this.IfRowsEvent = false
