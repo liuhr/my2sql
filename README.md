@@ -175,5 +175,7 @@ timestamp
 # 感谢
  感谢[https://github.com/siddontang](https://github.com/siddontang)的binlog解析库， 感谢dropbox的sqlbuilder库，感谢my2fback、binlog_inspector
 
-
-
+# TODO
+- [x] file方式解析binlog(离线解析binlog)
+- [x] GTID事务为单位进行解析
+- [x] 闪回、回滚添加begin/commit事务标示
