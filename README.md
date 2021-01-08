@@ -174,7 +174,7 @@ timestamp
 * MySQL8.0版本需要在配置文件中加入default_authentication_plugin  =mysql_native_password，用户密码认证必须是mysql_native_password才能解析
 
 # 感谢
- 感谢[https://github.com/siddontang](https://github.com/siddontang)的binlog解析库， 感谢dropbox的sqlbuilder库，感谢my2fback、binlog_inspector
+ 感谢[https://github.com/siddontang](https://github.com/siddontang)的binlog解析库， 感谢dropbox的sqlbuilder库，感谢my2fback、binlog_rollback
 
 # TODO
 - [x] file方式解析binlog(离线解析binlog)
