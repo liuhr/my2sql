@@ -161,7 +161,8 @@ default false, this is, use changed columns to build set part, use primary/uniqu
 ```
 
 # 安装
- + 有编译好的linux版本(CentOS release 6.x)  [点击下载Linux版](https://github.com/liuhr/my2sql/blob/master/releases/my2sql)
+ + 有编译好的linux版本(CentOS release 6.x)  [点击下载Linux版](https://github.com/liuhr/my2sql/blob/master/releases/centOS_release_6.x/my2sql)
+ + 有编译好的linux版本(CentOS release 7.x)  [点击下载Linux版](https://github.com/liuhr/my2sql/blob/master/releases/centOS_release_7.x/my2sql)
 
 
 # 限制

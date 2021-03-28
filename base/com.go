@@ -1,7 +1,6 @@
 package base
 
 import (
-	"fmt"
 	"github.com/siddontang/go-log/log"
 	"github.com/siddontang/go-mysql/mysql"
 	"github.com/siddontang/go-mysql/replication"
@@ -109,7 +108,7 @@ BinEventCheck:
 		replication.DELETE_ROWS_EVENTv2:
 
 		wrEvent := ev.Event.(*replication.RowsEvent)
-		fmt.Println(wrEvent.Rows)
+		//fmt.Println(wrEvent.Rows)
 		db := string(wrEvent.Table.Schema)
 		tb := string(wrEvent.Table.Table)
 		/*if !cfg.IsTargetTable(db, tb) {
