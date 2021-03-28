@@ -108,7 +108,6 @@ BinEventCheck:
 		replication.DELETE_ROWS_EVENTv2:
 
 		wrEvent := ev.Event.(*replication.RowsEvent)
-		//fmt.Println(wrEvent.Rows)
 		db := string(wrEvent.Table.Schema)
 		tb := string(wrEvent.Table.Table)
 		/*if !cfg.IsTargetTable(db, tb) {
