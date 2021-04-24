@@ -3,14 +3,16 @@ package base
 import (
 	"bufio"
 	"fmt"
-	"github.com/siddontang/go-log/log"
-	constvar "my2sql/constvar"
-	SQL "my2sql/sqlbuilder"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
+
+	SQL "my2sql/sqlbuilder"
+	constvar "my2sql/constvar"
+	"github.com/siddontang/go-log/log"
+
 )
 
 type ExtraSqlInfoOfPrint struct {

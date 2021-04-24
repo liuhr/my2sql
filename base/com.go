@@ -1,12 +1,14 @@
 package base
 
 import (
+	"sync"
+	"path/filepath"
+
+	"my2sql/dsql"
+	toolkits "my2sql/toolkits"
 	"github.com/siddontang/go-log/log"
 	"github.com/siddontang/go-mysql/mysql"
 	"github.com/siddontang/go-mysql/replication"
-	"my2sql/dsql"
-	toolkits "my2sql/toolkits"
-	"sync"
 )
 
 type BinEventHandlingIndx struct {
@@ -155,4 +157,85 @@ BinEventCheck:
 
 	return C_reProcess
 
+}
+
+
+func CheckBinHeaderCondition(cfg *ConfCmd, header *replication.EventHeader, currentBinlog string) (int) {
+	// process: 0, continue: 1, break: 2
+
+	myPos := mysql.Position{Name: currentBinlog, Pos: header.LogPos}
+	//fmt.Println(cfg.StartFilePos, cfg.IfSetStopFilePos, myPos)
+	if cfg.IfSetStartFilePos {
+		cmpRe := myPos.Compare(cfg.StartFilePos)
+		if cmpRe == -1 {
+			return C_reContinue
+		}
+	}
+
+	if cfg.IfSetStopFilePos {
+		cmpRe := myPos.Compare(cfg.StopFilePos)
+		if cmpRe >= 0 {
+			return C_reBreak
+		}
+	}
+	
+	//fmt.Println(cfg.StartDatetime, cfg.StopDatetime, header.Timestamp)
+	if cfg.IfSetStartDateTime {
+
+		if header.Timestamp < cfg.StartDatetime {
+			return C_reContinue
+		}
+	}
+
+	if cfg.IfSetStopDateTime {
+		if header.Timestamp >= cfg.StopDatetime {
+			return C_reBreak
+		}
+	}
+	if cfg.FilterSqlLen == 0 {
+		return C_reProcess
+	}
+
+	if header.EventType == replication.WRITE_ROWS_EVENTv1 || header.EventType == replication.WRITE_ROWS_EVENTv2 {
+		if cfg.IsTargetDml("insert") {
+			return C_reProcess
+		} else {
+			return C_reContinue
+		}
+	}
+
+	if header.EventType == replication.UPDATE_ROWS_EVENTv1 || header.EventType == replication.UPDATE_ROWS_EVENTv2 {
+		if cfg.IsTargetDml("update") {
+			return C_reProcess
+		} else {
+			return C_reContinue
+		}
+	}
+
+	if header.EventType == replication.DELETE_ROWS_EVENTv1 || header.EventType == replication.DELETE_ROWS_EVENTv2 {
+		if cfg.IsTargetDml("delete") {
+			return C_reProcess
+		} else {
+			return C_reContinue
+		}
+	}
+
+	return C_reProcess
+}
+
+func GetFirstBinlogPosToParse(cfg *ConfCmd) (string, int64) {
+	var binlog string
+	var pos int64
+	if cfg.StartFile != "" {
+		binlog = filepath.Join(cfg.BinlogDir, cfg.StartFile)
+	} else {
+		binlog = cfg.GivenBinlogFile
+	}
+	if cfg.StartPos != 0 {
+		pos = int64(cfg.StartPos)
+	} else {
+		pos = 4
+	}
+
+	return binlog, pos
 }

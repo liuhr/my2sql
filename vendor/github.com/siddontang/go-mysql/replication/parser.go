@@ -207,6 +207,11 @@ func (p *BinlogParser) SetFlavor(flavor string) {
 	p.flavor = flavor
 }
 
+//added by momo
+func (p *BinlogParser) ParseHeader(data []byte) (*EventHeader, error) {
+	return p.parseHeader(data)
+}
+
 func (p *BinlogParser) parseHeader(data []byte) (*EventHeader, error) {
 	h := new(EventHeader)
 	err := h.Decode(data)
@@ -216,6 +221,13 @@ func (p *BinlogParser) parseHeader(data []byte) (*EventHeader, error) {
 
 	return h, nil
 }
+
+
+// added by momo
+func (p *BinlogParser) ParseEvent(h *EventHeader, data []byte, rawData []byte) (Event, error) {
+	return p.parseEvent(h, data, rawData)
+}
+
 
 func (p *BinlogParser) parseEvent(h *EventHeader, data []byte, rawData []byte) (Event, error) {
 	var e Event

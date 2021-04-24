@@ -4,15 +4,16 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-	"github.com/siddontang/go-log/log"
-	"github.com/siddontang/go-mysql/mysql"
-	"github.com/siddontang/go-mysql/replication"
-	constvar "my2sql/constvar"
-	toolkits "my2sql/toolkits"
 	"os"
 	"path/filepath"
 	"regexp"
 	"time"
+
+	constvar "my2sql/constvar"
+	toolkits "my2sql/toolkits"
+	"github.com/siddontang/go-log/log"
+	"github.com/siddontang/go-mysql/mysql"
+	"github.com/siddontang/go-mysql/replication"
 )
 
 const (
@@ -108,6 +109,8 @@ type ConfCmd struct {
 	IfSetStartDateTime bool
 	IfSetStopDateTime  bool
 
+	LocalBinFile string
+
 	OutputToScreen bool
 	PrintInterval  int
 	BigTrxRowLimit int
@@ -179,7 +182,7 @@ func (this *ConfCmd) ParseCmdOptions() {
 	}
 
 	flag.BoolVar(&version, "v", false, "print version")
-	//flag.StringVar(&this.Mode, "mode", "repl", StrSliceToString(GOptsValidMode, C_joinSepComma, C_validOptMsg)+". repl: as a slave to get binlogs from master. file: get binlogs from local filesystem. default repl")
+	flag.StringVar(&this.Mode, "mode", "repl", StrSliceToString(GOptsValidMode, C_joinSepComma, C_validOptMsg)+". repl: as a slave to get binlogs from master. file: get binlogs from local filesystem. default repl")
 	flag.StringVar(&this.WorkType, "work-type", "2sql", StrSliceToString(GOptsValidWorkType, C_joinSepComma, C_validOptMsg)+". 2sql: convert binlog to sqls, rollback: generate rollback sqls, stats: analyze transactions. default: 2sql")
 	flag.StringVar(&this.MysqlType, "mysql-type", "mysql", StrSliceToString(GOptsValidMysqlType, C_joinSepComma, C_validOptMsg)+". server of binlog, mysql or mariadb, default mysql")
 
@@ -191,15 +194,16 @@ func (this *ConfCmd) ParseCmdOptions() {
 
 	flag.StringVar(&dbs, "databases", "", "only parse these databases, comma seperated, default all.")
 	flag.StringVar(&tbs, "tables", "", "only parse these tables, comma seperated, DONOT prefix with schema, default all.")
-	flag.StringVar(&ignoreDbs, "ignoreDatabases", "","ignore parse these databases, comma seperated, default null")
-	flag.StringVar(&ignoreTbs, "ignoreTables", "","ignore parse these tables, comma seperated, default null")
+	flag.StringVar(&ignoreDbs, "ignore-databases", "","ignore parse these databases, comma seperated, default null")
+	flag.StringVar(&ignoreTbs, "ignore-tables", "","ignore parse these tables, comma seperated, default null")
 	flag.StringVar(&sqlTypes, "sql", "", StrSliceToString(GOptsValidFilterSql, C_joinSepComma, C_validOptMsg)+". only parse these types of sql, comma seperated, valid types are: insert, update, delete; default is all(insert,update,delete)")
-	flag.BoolVar(&this.IgnorePrimaryKeyForInsert, "ignorePrimaryKeyForInsert", false, "for insert statement when -workType=2sql, ignore primary key")
+	flag.BoolVar(&this.IgnorePrimaryKeyForInsert, "ignore-primaryKey-forInsert", false, "for insert statement when -workType=2sql, ignore primary key")
 
 	flag.StringVar(&this.StartFile, "start-file", "", "binlog file to start reading")
 	flag.UintVar(&this.StartPos, "start-pos", 4, "start reading the binlog at position")
 	flag.StringVar(&this.StopFile, "stop-file", "", "binlog file to stop reading")
 	flag.UintVar(&this.StopPos, "stop-pos", 4, "Stop reading the binlog at position")
+	flag.StringVar(&this.LocalBinFile, "local-binlog-file", "", "local binlog files to process, It works with -mode=file ")
 
 	flag.StringVar(&this.BinlogTimeLocation, "tl", "Local", "time location to parse timestamp/datetime column in binlog, such as Asia/Shanghai. default Local")
 	flag.StringVar(&startTime, "start-datetime", "", "Start reading the binlog at first event having a datetime equal or posterior to the argument, it should be like this: \"2020-01-01 01:00:00\"")
@@ -209,7 +213,7 @@ func (this *ConfCmd) ParseCmdOptions() {
 	flag.BoolVar(&this.PrintExtraInfo, "add-extraInfo", false, "Works with -work-type=2sql|rollback. Print database/table/datetime/binlogposition...info on the line before sql, default false")
 
 	flag.BoolVar(&this.FullColumns, "full-columns", false, "For update sql, include unchanged columns. for update and delete, use all columns to build where condition.\t\ndefault false, this is, use changed columns to build set part, use primary/unique key to build where condition")
-	flag.BoolVar(&doNotAddPrifixDb, "doNotAddPrifixDb", false, "Prefix table name witch database name in sql,ex: insert into db1.tb1 (x1, x1) values (y1, y1). ")
+	flag.BoolVar(&doNotAddPrifixDb, "do-not-add-prifixDb", false, "Prefix table name witch database name in sql,ex: insert into db1.tb1 (x1, x1) values (y1, y1). ")
 	flag.BoolVar(&this.UseUniqueKeyFirst, "U", false, "prefer to use unique key instead of primary key to build where condition for delete/update sql")
 
 	flag.StringVar(&this.OutputDir, "output-dir", "", "result output dir, default current work dir. Attension, result files could be large, set it to a dir with large free space")
@@ -227,11 +231,9 @@ func (this *ConfCmd) ParseCmdOptions() {
 		os.Exit(0)
 	}
 
-	this.Mode = "repl"
-
-	/*if this.Mode != "repl" && this.Mode != "file" {
+	if this.Mode != "repl" && this.Mode != "file" {
 		log.Fatalf("unsupported mode=%s, valid modes: file, repl", this.Mode)
-	}*/
+	}
 
 	// check --output-dir
 	if this.OutputDir != "" {
@@ -328,6 +330,32 @@ func (this *ConfCmd) ParseCmdOptions() {
 		this.IfSetStopParsPoint = false
 	}
 
+
+	if this.Mode == "file" {
+
+		if this.StartFile == "" {
+			log.Fatalf("missing binlog file.  -start-file must be specify when -mode=file ")
+		}
+		this.GivenBinlogFile = this.StartFile
+		if !toolkits.IsFile(this.GivenBinlogFile) {
+			log.Fatalf("%s doesnot exists nor a file\n", this.GivenBinlogFile)
+		} else {
+			this.BinlogDir = filepath.Dir(this.GivenBinlogFile)
+		}
+	}
+
+	if this.Mode == "file" {
+	        if this.LocalBinFile == "" {
+	                log.Fatalf("missing binlog file.  -local-binlog-file must be specify when -mode=file ")
+	        }
+	        this.GivenBinlogFile = this.LocalBinFile
+	        if !toolkits.IsFile(this.GivenBinlogFile) {
+	                log.Fatalf("%s doesnot exists nor a file\n", this.GivenBinlogFile)
+	        } else {
+	                this.BinlogDir = filepath.Dir(this.GivenBinlogFile)
+	        }
+	}
+
 	
 	this.EventChan = make(chan MyBinEvent, this.Threads*2)
 	this.StatChan = make(chan BinEventStats, this.Threads*2)
@@ -338,7 +366,7 @@ func (this *ConfCmd) ParseCmdOptions() {
 
 
 	this.CheckCmdOptions()
-	this.CreateDB()
+	this.CreateDB()	
 
 }
 

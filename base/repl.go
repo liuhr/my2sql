@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	
 	"github.com/siddontang/go-log/log"
 	"github.com/siddontang/go-mysql/mysql"
 	"github.com/siddontang/go-mysql/replication"
