@@ -44,7 +44,7 @@ repl: 伪装成从库解析binlog文件，file: 离线解析binlog文件, 默认
 ```
 -local-binlog-file
 ```
-当指定-mode=file 参数时，需要指定-local-binlog-file binlog文件相对路径或绝对路径
+当指定-mode=file 参数时，需要指定-local-binlog-file binlog文件相对路径或绝对路径,可以连续解析多个binlog文件，只需要指定起始文件名，程序会自动持续解析下个文件
 ```
 
 -add-extraInfo
