@@ -52,8 +52,8 @@ var (
 
 	GOptsValueRange map[string][]int = map[string][]int{
 		"PrintInterval":  []int{1, 600, 30},
-		"BigTrxRowLimit": []int{10, 30000, 500},
-		"LongTrxSeconds": []int{1, 3600, 300},
+		"BigTrxRowLimit": []int{1, 10, 30000, 500},
+		"LongTrxSeconds": []int{0, 1, 3600, 300},
 		"InsertRows":     []int{1, 500, 30},
 		"Threads":        []int{1, 16, 2},
 	}
