@@ -12,8 +12,8 @@ import (
 	constvar "my2sql/constvar"
 	toolkits "my2sql/toolkits"
 	"github.com/siddontang/go-log/log"
-	"github.com/siddontang/go-mysql/mysql"
-	"github.com/siddontang/go-mysql/replication"
+	"github.com/go-mysql-org/go-mysql/mysql"
+        "github.com/go-mysql-org/go-mysql/replication"
 )
 
 const (

@@ -4,7 +4,7 @@ import (
 	"sync"
 
 	my "my2sql/base"
-	"github.com/siddontang/go-mysql/replication"
+        "github.com/go-mysql-org/go-mysql/replication"
 )
 
 func main() {

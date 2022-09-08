@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/siddontang/go-log/log"
-	MyPos "github.com/siddontang/go-mysql/mysql"
+	MyPos "github.com/go-mysql-org/go-mysql/mysql"
 	toolkits "my2sql/toolkits"
 )
 

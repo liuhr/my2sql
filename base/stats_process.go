@@ -9,7 +9,7 @@ import (
 	"my2sql/dsql"
 	constvar "my2sql/constvar"
 	"github.com/siddontang/go-log/log"
-	"github.com/siddontang/go-mysql/replication"
+        "github.com/go-mysql-org/go-mysql/replication"
 )
 
 var (

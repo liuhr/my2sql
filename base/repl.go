@@ -6,8 +6,8 @@ import (
 	"strings"
 	
 	"github.com/siddontang/go-log/log"
-	"github.com/siddontang/go-mysql/mysql"
-	"github.com/siddontang/go-mysql/replication"
+	"github.com/go-mysql-org/go-mysql/mysql"
+        "github.com/go-mysql-org/go-mysql/replication"
 )
 
 func ParserAllBinEventsFromRepl(cfg *ConfCmd) {
