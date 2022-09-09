@@ -36,8 +36,9 @@ type KeyInfo []string
 //type FieldInfo map[string]string //{"name":"col1", "type":"int"}
 
 type FieldInfo struct {
-	FieldName string `json:"column_name"`
-	FieldType string `json:"column_type"`
+	FieldName	string `json:"column_name"`
+	FieldType	string `json:"column_type"`
+	IsUnsigned	bool	`json:"is_unsigned"`
 }
 
 type TblInfoJson struct {
@@ -294,7 +295,7 @@ func  (this *TablesColumnsInfo) GetTableColumns(db *sql.DB, dbname string, tbnam
 		if !ok {
 			dbTbFieldsInfo[tbKey] = []FieldInfo{}
 		}
-		dbTbFieldsInfo[tbKey] = append(dbTbFieldsInfo[tbKey], FieldInfo{FieldName: string(data[0]), FieldType: GetFiledType(string(data[1]))})
+		dbTbFieldsInfo[tbKey] = append(dbTbFieldsInfo[tbKey], FieldInfo{FieldName: string(data[0]), FieldType: GetFiledType(string(data[1])), IsUnsigned: IsUnsigned(string(data[1]))})
 	}
 	if len(this.tableInfos) < 1 {
 		this.tableInfos = map[string]*TblInfoJson{}

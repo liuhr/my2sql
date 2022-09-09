@@ -14,6 +14,7 @@ import (
 	"encoding/binary"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/dropbox/godropbox/encoding2"
@@ -34,6 +35,7 @@ const (
 	FractionalType = ValueType(2)
 	StringType     = ValueType(3)
 	UTF8StringType = ValueType(4)
+	maxMediumintUnsigned int32 = 16777215
 )
 
 // Value can store any SQL value. NULL is stored as nil.
@@ -272,6 +274,33 @@ func BuildValue(goval interface{}) (v Value, err error) {
 		return Value{}, errors.Newf("Unsupported bind variable type %T: %v", goval, goval)
 	}
 	return v, nil
+}
+
+func ConvertIntUnsigned(arg interface{}, columnType string) interface{} {
+	if i, ok := arg.(int8); ok {
+		return uint8(i)
+	}
+	if i, ok := arg.(int16); ok {
+		return uint16(i)
+	}
+	if i, ok := arg.(int32); ok {
+		if strings.Contains(columnType,"mediumint") {
+			// problem with mediumint is that it's a 3-byte type. There is no compatible golang type to match that.
+			// So to convert from negative to positive we'd need to convert the value manually
+			if i >= 0 {
+				return i
+			}
+			return uint32(maxMediumintUnsigned + i + 1)
+		}
+		return uint32(i)
+	}
+	if i, ok := arg.(int64); ok {
+		return strconv.FormatUint(uint64(i), 10)
+	}
+	if i, ok := arg.(int); ok {
+		return uint(i)
+	}
+	return arg
 }
 
 // ConverAssignRowNullable is the same as ConvertAssignRow except that it allows

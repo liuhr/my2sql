@@ -91,6 +91,10 @@ func GetFiledType(filed string) string{
 	return arr[0]
 }
 
+func IsUnsigned(filed string) bool {
+	return strings.Contains(strings.ToLower(filed), "unsigned")
+}
+
 func GetNextBinlog(baseName string, indx int) string {
 	indx++
 	//idxStr := strconv.Itoa(indx)

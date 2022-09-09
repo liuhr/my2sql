@@ -3,6 +3,7 @@ package base
 import (
 	"bufio"
 	"fmt"
+	"my2sql/sqltypes"
 	"os"
 	"path/filepath"
 	"strings"
@@ -87,6 +88,16 @@ func GenForwardRollbackSqlFromBinEvent(i uint, cfg *ConfCmd, wg *sync.WaitGroup)
 		}
 		for ci, colType := range colsTypeName {
 			colsTypeNameFromMysql[ci] = tbInfo.Columns[ci].FieldType
+
+			if strings.Contains(strings.ToLower(colType), "int") {
+				if tbInfo.Columns[ci].IsUnsigned {
+					for ri, _ := range ev.BinEvent.Rows {
+						ev.BinEvent.Rows[ri][ci] = sqltypes.ConvertIntUnsigned(ev.BinEvent.Rows[ri][ci], colType)
+					}
+
+				}
+			}
+			
 			if colType == "blob" {
 				// text is stored as blob
 				if strings.Contains(strings.ToLower(tbInfo.Columns[ci].FieldType), "text") {
