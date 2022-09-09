@@ -196,6 +196,7 @@ default false, this is, use changed columns to build set part, use primary/uniqu
 # 限制
 * 使用回滚/闪回功能时，binlog格式必须为row,且binlog_row_image=full， DML统计以及大事务分析不受影响
 * 只能回滚DML， 不能回滚DDL
+* 使用rollback功能时，要解析的binlog段，表结构要保持一致（例如：解析mysql-bin.000001文件，此binlog文件的的表有add column或drop column操作，则执行rollback可能会执行异常）
 * 支持指定-tl时区来解释binlog中time/datetime字段的内容。开始时间-start-datetime与结束时间-stop-datetime也会使用此指定的时区，
   但注意此开始与结束时间针对的是binlog event header中保存的unix timestamp。结果中的额外的datetime时间信息都是binlog event header中的unix
 timestamp
