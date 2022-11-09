@@ -9,6 +9,7 @@ import (
 	"github.com/siddontang/go-log/log"
 	"github.com/go-mysql-org/go-mysql/mysql"
 	"github.com/go-mysql-org/go-mysql/replication"
+	
 )
 
 type BinEventHandlingIndx struct {
