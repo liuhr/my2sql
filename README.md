@@ -189,8 +189,16 @@ default false, this is, use changed columns to build set part, use primary/uniqu
 ./my2sql  -user root -password xxxx -host 127.0.0.1   -port 3306 -mode repl  -work-type 2sql  -start-file mysql-bin.011259  -start-pos 4   -output-toScreen 
 ```
 
-# 安装
+# 下载二进制版本
  + 有编译好的linux版本(CentOS release 7.x)  [点击下载Linux版](https://github.com/liuhr/my2sql/blob/master/releases/centOS_release_7.x/my2sql)
+
+# 编译安装
+```
+cd $GOPATH/src
+git clone https://github.com/liuhr/my2sql.git
+cd my2sql/
+go build .
+```
 
 
 # 限制
