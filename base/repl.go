@@ -107,14 +107,14 @@ func SendBinlogEventRepl(cfg *ConfCmd) {
 		}
 
 		db, tb, sqlType, sql, rowCnt = GetDbTbAndQueryAndRowCntFromBinevent(ev)
-		if find := strings.Contains(db, "#"); find {
-			log.Fatalf(fmt.Sprintf("Unsupported database name %s contains special character '#'", db))
-			break
-		}
-		if find := strings.Contains(tb, "#"); find {
-			log.Fatalf(fmt.Sprintf("Unsupported table name %s.%s contains special character '#'", db, tb))
-			break
-		}
+		//if find := strings.Contains(db, "#"); find {
+		//	log.Fatalf(fmt.Sprintf("Unsupported database name %s contains special character '#'", db))
+		//	break
+		//}
+		//if find := strings.Contains(tb, "#"); find {
+		//	log.Fatalf(fmt.Sprintf("Unsupported table name %s.%s contains special character '#'", db, tb))
+		//	break
+		//}
 	
 		if sqlType == "query" {
 			sqlLower = strings.ToLower(sql)
