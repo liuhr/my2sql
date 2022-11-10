@@ -273,7 +273,8 @@ var validIdentifierRegexp = regexp.MustCompile("^[a-zA-Z_]\\w*$")
 
 // Returns true if the given string is suitable as an identifier.
 func validIdentifierName(name string) bool {
-	return validIdentifierRegexp.MatchString(name)
+	//return validIdentifierRegexp.MatchString(name)
+	return true
 }
 
 // Pseudo Column type returned by table.C(name)
