@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	C_Version      = "my2back V1.0"
+	C_Version      = "my2sql V2.0"
 	C_validOptMsg  = "valid options are: "
 	C_joinSepComma = ","
 
