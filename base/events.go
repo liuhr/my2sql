@@ -114,7 +114,7 @@ func GenForwardRollbackSqlFromBinEvent(i uint, cfg *ConfCmd, wg *sync.WaitGroup)
 					}
 				}
 			}
-			if colType == "json" {
+			/*if colType == "json" {
 				for ri, _ := range ev.BinEvent.Rows {
 					if ev.BinEvent.Rows[ri][ci] == nil {
 						continue
@@ -127,7 +127,7 @@ func GenForwardRollbackSqlFromBinEvent(i uint, cfg *ConfCmd, wg *sync.WaitGroup)
 					}
 				}
 
-			}
+			}*/
 		}
 		uniqueKey = tbInfo.GetOneUniqueKey(cfg.UseUniqueKeyFirst)
 		if len(uniqueKey) > 0 {
